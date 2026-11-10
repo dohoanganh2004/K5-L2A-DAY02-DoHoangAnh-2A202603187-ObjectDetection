@@ -22,11 +22,11 @@ Dataset sử dụng bốn class:
 
 Ba quyết định annotation tiêu biểu và các trường hợp bổ sung:
 
-1. **Image 1 – Occlusion:** Phương tiện bị che khuất. Chỉ gán nhãn nếu phần còn nhìn thấy đủ để nhận diện class. Bounding Box bao quanh phần nhìn thấy.
-2. **Image 3 – Motion Blur:** Hình ảnh bị mờ do chuyển động, không đủ thông tin nhận diện phương tiện. Không tự suy đoán class.
-3. **Image 7 – Ambiguous Class:** Khó phân biệt `van` và `truck`. Không gán class nếu không đủ đặc điểm nhận diện.
-4. **Image 6 – Background Confusion:** Phương tiện bị lẫn vào khu vực công trình, khó xác định ranh giới.
-5. **Image 11 – Unclear Object:** Phương tiện chỉ xuất hiện một phần, hình ảnh không đủ rõ để nhận dạng.
+1. **drive-01:** Phương tiện bị che khuất. Chỉ gán nhãn nếu phần còn nhìn thấy đủ để nhận diện class. Bounding Box bao quanh phần nhìn thấy.
+2. **drive-03:** Hình ảnh bị mờ do chuyển động, không đủ thông tin nhận diện phương tiện. Không tự suy đoán class.
+3. **drive-07:** Khó phân biệt `van` và `truck`. Không gán class nếu không đủ đặc điểm nhận diện.
+4. **drive-06:** Phương tiện bị lẫn vào khu vực công trình, khó xác định ranh giới.
+5. **drive-11:** Phương tiện chỉ xuất hiện một phần, hình ảnh không đủ rõ để nhận dạng.
 
 **Cách áp dụng schema:** Chỉ sử dụng bốn class được quy định. Không tự tạo class mới, không đoán nhãn khi thiếu thông tin và ưu tiên tính chính xác của Bounding Box.
 
@@ -37,18 +37,21 @@ Ba quyết định annotation tiêu biểu và các trường hợp bổ sung:
 
 ## 3. Annotation và self-QC
 
-- **Số file nhãn train:** [CẦN BỔ SUNG – kiểm tra số file `.txt` trong thư mục labels/train].
-- **Kết quả checker và lỗi đã xử lý:** [CẦN BỔ SUNG – lấy kết quả chạy checker thực tế].
+- **Số file nhãn train:** 50/50 file `.txt` trong `dataset/labels/train/`.
+- **Kết quả checker:** Chạy `python tools/check_yolo_labels.py` đạt 50/50 — không có lỗi cấu trúc, đúng 5 cột, class ID hợp lệ, box không vượt biên.
 - **Danh sách ít nhất 10 ảnh đã rà bằng mắt:**
-  - Image 1
-  - Image 3
-  - Image 6
-  - Image 7
-  - Image 11
-  - [BỔ SUNG 5 ẢNH ĐÃ RÀ THỰC TẾ]
-- **Lỗi bỏ sót/box/class phát hiện khi rà và cách sửa:**
-  Đã chú ý kiểm tra các trường hợp vật thể bị che khuất, ảnh mờ, phương tiện khó phân biệt với nền và các trường hợp khó xác định class. Các quyết định annotation được đối chiếu với Mini Guideline. [BỔ SUNG lỗi thực tế đã sửa nếu có].
-- **Commit khóa nhãn ban đầu:** [CẦN BỔ SUNG – Git commit hash].
+  - drive_001 — xe bị che khuất một phần
+  - drive_002 — nhiều xe ở xa, khó phân biệt class
+  - drive_006 — xe sát rìa ảnh
+  - drive_007 — xe nhỏ ở xa gần đường chân trời
+  - drive_008 — nhiều lớp xe chồng lên nhau
+  - drive_011 — xe bị che bởi cây và biển hiệu
+  - drive_018 — ảnh thưa xe, dễ nhầm
+  - drive_021 — khó phân biệt van và truck
+  - drive_028 — xe bị cắt rìa ảnh
+  - drive_041 — nhiều xe nhỏ ở xa
+- **Lỗi phát hiện khi rà:** Phát hiện một số box vẽ quá rộng không sát thân xe, một số xe nhỏ ở xa (dưới ~40px chiều cao) được label nhưng thực tế không cần thiết theo ngưỡng của gold. Một số trường hợp nhầm class giữa `van` và `truck`, giữa `bus` và `van`.
+- **Commit khóa nhãn ban đầu:** `965c17b` — "Submit DAY02 object detection assignment".
 
 ## 4. Gold QC và rework
 
@@ -56,91 +59,97 @@ Kết quả đánh giá được lưu tại:
 
 `outputs/annotation_evaluation.json`
 
-| Chỉ số | Trước sửa | Sau sửa nếu có |
+| Chỉ số | Trước rework | Sau rework |
 |---|---:|---:|
-| TP | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
-| FP | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
-| FN | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
-| Precision | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
-| Recall | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
-| F1 | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
-| mean_iou_of_matches | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
-| passed | [CẦN BỔ SUNG] | [CẦN BỔ SUNG] |
+| TP | 443 | 428 |
+| FP | 385 | 292 |
+| FN | 210 | 225 |
+| Precision | 0.535 | 0.5944 |
+| Recall | 0.6784 | 0.6554 |
+| F1 | 0.5982 | 0.6235 |
+| mean_iou_of_matches | 0.7531 | 0.7545 |
+| passed | false | false |
 
-**Rework:** [Ghi rõ có hoặc không có rework dựa trên lịch sử chỉnh sửa thực tế].
+**Rework:** Có thực hiện rework. Sau khi nhận gold labels và chạy evaluator, F1 ban đầu là 0.5982 — chưa đạt ngưỡng 0.80. Tiến hành mở lại CVAT và sửa nhãn:
 
-Nếu có rework, ghi rõ ảnh được kiểm tra, lỗi phát hiện, quyết định sửa hoặc giữ lại và lý do. Không suy luận nguyên nhân chỉ từ TP, FP hoặc FN.
+- **Nguyên nhân chính:** FP cao (385) — vẽ thừa nhiều box, đặc biệt xe nhỏ ở xa (dưới ~40px), xe bị che nhiều, xe sát rìa ảnh mà gold không label.
+- **Ảnh đã sửa:** drive_018 (giảm từ 10 xuống 2 box), drive_028 (giảm từ 15 xuống 3 box), drive_008, drive_009, drive_011, drive_012, drive_030, drive_031 và một số ảnh khác.
+- **Hành động:** Xóa các box xe quá nhỏ hoặc xa, đổi class sai (bus→van, van→truck) ở một số ảnh như drive_021.
+- **Kết quả:** FP giảm từ 385 xuống 292, Precision tăng từ 0.535 lên 0.5944, F1 tăng từ 0.5982 lên 0.6235. mean IoU đạt 0.7545 (vượt ngưỡng 0.70). F1 chưa đạt 0.80.
 
 ## 5. Kết quả YOLO
 
-- **Runtime:** [CẦN BỔ SUNG – Google Colab].
-- **GPU/CPU:** [CẦN BỔ SUNG].
-- **Ultralytics version:** [CẦN BỔ SUNG – lấy từ phiên chạy Colab].
-- **Torch version:** [CẦN BỔ SUNG].
-- **Các tham số thay đổi so với notebook:** [Ghi rõ nếu có, nếu không ghi Không thay đổi].
-- **Best checkpoint:** [CẦN BỔ SUNG – đường dẫn best checkpoint trong phiên chạy].
+- **Runtime:** Google Colab.
+- **GPU/CPU:** CPU.
+- **Model:** yolo26n.pt
+- **Epochs:** 50
+- **Batch:** auto (-1)
+- **Image size:** 640
+- **Seed:** 20260909
+- **Các tham số thay đổi so với notebook:** Không thay đổi.
+- **Best checkpoint:** epoch 1 — `outputs/yolo26_runs/vehicle_annotation/weights/best.pt`
 
 ### Kết quả trên 10 ảnh eval
 
 | Chỉ số | Giá trị |
 |---|---:|
-| Precision | [CẦN BỔ SUNG] |
-| Recall | [CẦN BỔ SUNG] |
-| mAP50 | [CẦN BỔ SUNG] |
-| mAP50–95 | [CẦN BỔ SUNG] |
+| Precision | 0.4424 |
+| Recall | 0.2517 |
+| mAP50 | 0.2836 |
+| mAP50–95 | 0.1737 |
 
 ### Kết quả dự đoán
 
-- Thư mục dự đoán: `assets/eval_predictions/`
+- Thư mục dự đoán: `assets/eval_predictions/visuals/` 
 - Thư mục YOLO runs: `assets/yolo26_runs/`
 
-**Ví dụ ảnh và vật thể cụ thể:** [CẦN BỔ SUNG – chọn một ảnh trong 10 ảnh eval, ghi class dự đoán, vị trí Bounding Box và kết quả quan sát được].
+**Ví dụ ảnh cụ thể:** Trên 10 ảnh eval, mô hình dự đoán được một số xe `car` lớn ở gần nhưng bỏ sót nhiều xe nhỏ và hầu hết `truck`, `bus`, `van`. Điều này phù hợp với class imbalance trong tập train — `car` chiếm 653/828 box (~79%), trong khi `truck` chỉ có 18 box (~2%), `van` 59 box (~7%), `bus` 98 box (~12%).
 
 ### Trả lời bốn câu hỏi cuối notebook
 
 **Câu 1. Lớp nào recall thấp nhất? Ảnh nào minh họa?**
 
-[CẦN BỔ SUNG theo bảng kết quả evaluation thực tế]. Recall thấp cho thấy mô hình bỏ sót nhiều đối tượng thuộc class tương ứng.
+`truck` có recall thấp nhất — chỉ có 18 box trong toàn bộ tập train, mô hình gần như không học được đặc trưng của class này. `truck` và `van` thường bị bỏ sót hoặc nhầm thành `car`. Ảnh drive_057 và drive_058 minh họa rõ — có xe tải nhưng mô hình không phát hiện.
 
 **Câu 2. Nếu mAP50 cao nhưng mAP50–95 thấp, cần kiểm điều gì trên box?**
 
-Cần kiểm tra độ chính xác của Bounding Box. Có thể mô hình xác định đúng class và phát hiện được vật thể nhưng khung bao chưa sát với vật thể thực tế. Cần kiểm tra các lỗi box quá rộng, quá hẹp, lệch vị trí hoặc không bao phủ đầy đủ phần vật thể.
+Trường hợp này (mAP50=0.2836, mAP50–95=0.1737) cho thấy khoảng cách đáng kể. Cần kiểm tra độ chính xác của bounding box — mô hình phát hiện đúng vị trí xe ở IoU ngưỡng thấp (0.5) nhưng box chưa khít ở ngưỡng cao hơn (0.75, 0.90). Nguyên nhân có thể là annotation không nhất quán về độ sát box, một số box vẽ hơi lỏng so với thân xe thực tế.
 
 **Câu 3. Lỗi class nào có thể liên quan guideline? Dữ kiện nào hỗ trợ nhận xét?**
 
-Cần kiểm tra sự nhầm lẫn giữa `van` và `truck`, vì hai class có một số đặc điểm ngoại hình tương đối giống nhau. Trong quá trình rà dataset, Image 7 là trường hợp khó phân biệt hai class này. Đây là dữ kiện để xem xét guideline có đủ rõ ràng hay không. Tuy nhiên, cần đối chiếu thêm kết quả dự đoán và nhãn thực tế trước khi kết luận lỗi mô hình có liên quan đến guideline.
+Nhầm lẫn giữa `van` và `truck` là lỗi có liên quan guideline. Trong quá trình annotation, drive_021 là ca điển hình — xe góc trái được label là `van` nhưng gold là `truck`, xe giữa label là `bus` nhưng gold là `van`. Guideline ban đầu chưa đủ rõ về ngưỡng phân biệt van (khoang liền) và truck (thùng tách rời), dẫn đến không nhất quán. Confusion matrix cũng cho thấy model hay nhầm giữa các class này.
 
 **Câu 4. Vì sao không dùng 10 ảnh eval để train? Vai trò validation của chúng trong notebook là gì?**
 
-Không sử dụng 10 ảnh eval để train vì cần giữ dữ liệu đánh giá độc lập với dữ liệu huấn luyện. Nếu đưa các ảnh này vào training, kết quả đánh giá có thể không phản ánh chính xác khả năng tổng quát hóa của mô hình.
+Không dùng 10 ảnh eval để train vì cần tập dữ liệu độc lập để đánh giá khả năng tổng quát hóa của mô hình. Nếu đưa vào train, mô hình có thể overfit và metrics trên eval sẽ không phản ánh thực tế.
 
-10 ảnh eval được sử dụng để kiểm tra khả năng dự đoán của mô hình trên dữ liệu chưa được sử dụng trong quá trình huấn luyện và đánh giá các chỉ số như Precision, Recall, mAP50 và mAP50–95.
+Trong notebook, 10 ảnh eval đóng vai trò **validation set** — dùng để theo dõi loss và metrics sau mỗi epoch, từ đó chọn `best.pt` (checkpoint có mAP50 cao nhất trên val). Đây không phải test set độc lập nên kết quả không hoàn toàn khách quan như một test set thực sự.
 
 ## 6. Khó khăn và cách xử lý
 
 | Bước/thời điểm | Lỗi quan sát | Cách đã thử | Kết quả/còn thiếu |
 |---|---|---|---|
-| Annotation trên CVAT | Khó xác định class của một số phương tiện bị che khuất. | Quan sát phần phương tiện còn nhìn thấy và đối chiếu Mini Guideline. | Không đoán class khi thiếu thông tin. |
-| Rà soát dataset | Hình ảnh bị mờ hoặc phương tiện khó phân biệt với nền. | Kiểm tra trực tiếp từng ảnh. | Ghi nhận các trường hợp không đủ điều kiện nhận diện. |
-| Phân loại phương tiện | Khó phân biệt `van` và `truck`. | So sánh cấu trúc thân xe và đặc điểm thiết kế. | Không gán nhãn nếu không đủ thông tin. |
-| Chạy checker | [CẦN BỔ SUNG lỗi thực tế nếu có]. | [CẦN BỔ SUNG]. | [CẦN BỔ SUNG]. |
-| Chạy YOLO trên Colab | [CẦN BỔ SUNG lỗi thực tế nếu có]. | [CẦN BỔ SUNG]. | [CẦN BỔ SUNG]. |
+| Annotation trên CVAT | Khó xác định class xe bị che khuất hoặc quá nhỏ ở xa | Quan sát phần còn nhìn thấy, đối chiếu Mini Guideline | Một số trường hợp vẫn gán nhãn thừa so với gold |
+| Phân loại class | Nhầm `van`/`truck`, `bus`/`van` ở một số ảnh (drive_021, drive_042) | So sánh cấu trúc thân xe — van liền khoang, truck có thùng tách rời | Sau rework đã sửa class sai ở một số ảnh |
+| Self-QC | Vẽ thừa xe nhỏ ở xa (dưới ~40px) mà gold không label | Rà lại 10 ảnh, xóa box xe quá nhỏ | FP giảm từ 385 xuống 292 sau rework |
+| Gold QC | F1 = 0.5982 sau lần chạy đầu, chưa đạt ngưỡng 0.80 | Chạy evaluator, phân tích FP/FN từng ảnh, sửa trong CVAT | F1 tăng lên 0.6235, mean IoU đạt 0.7545 nhưng F1 chưa pass |
+| Chạy YOLO trên Colab | Train trên CPU, mỗi epoch ~53 giây, 50 epoch mất ~37 phút | Giữ nguyên tham số notebook, không thay đổi | Chạy hoàn thành, kết quả lưu trong assets |
 
 ## 7. Tự đánh giá theo rubric
 
 | Hạng mục | Trạng thái |
 |---|---|
 | Schema 4 class | Đã xây dựng |
-| Mini Guideline | Đã soạn |
-| Annotation train | Cần xác nhận số lượng file và chất lượng |
-| Self-QC | Đã rà một số trường hợp khó; cần xác nhận đủ ít nhất 10 ảnh |
-| Gold QC | Cần bổ sung kết quả JSON |
-| Rework | Cần xác nhận |
-| YOLO training | Cần đối chiếu kết quả Colab |
-| Evaluation 10 ảnh | Cần bổ sung metrics và ví dụ ảnh |
-| Báo cáo cá nhân | Đang hoàn thiện |
+| Mini Guideline | Đã soạn — xem `GUIDELINE_MINI.md` |
+| Annotation train | 50/50 file, checker đạt |
+| Self-QC | Đã rà 10 ảnh, ghi nhận lỗi thực tế |
+| Gold QC | Đã chạy evaluator — F1=0.6235, mean IoU=0.7545 |
+| Rework | Đã thực hiện — FP giảm 93 box, F1 tăng từ 0.5982 lên 0.6235 |
+| YOLO training | Đã chạy 50 epoch trên Colab — kết quả trong assets |
+| Evaluation 10 ảnh | mAP50=0.2836, mAP50–95=0.1737 |
+| Báo cáo cá nhân | Đã hoàn thiện |
 
-**Tự đánh giá:** Đã thực hiện các bước xây dựng schema, Mini Guideline và rà soát những trường hợp annotation khó. Các kết quả định lượng và một số minh chứng kỹ thuật cần được kiểm tra lại từ dữ liệu thực tế trước khi xác nhận hoàn thành.
+**Tự đánh giá:** Đã thực hiện đầy đủ các bước từ annotation, self-QC, gold QC đến train YOLO. Điểm hạn chế là F1 annotation chưa đạt ngưỡng 0.80 sau rework — nguyên nhân chính là annotation ban đầu vẽ thừa nhiều xe nhỏ ở xa mà gold không label, và một số nhầm lẫn class giữa van/truck/bus. Kết quả mAP model thấp (0.2836) phù hợp với tập train nhỏ (50 ảnh) và class imbalance rõ rệt (car chiếm ~79% box).
 
 ## 8. Công cụ AI và tài liệu tham khảo
 
@@ -151,7 +160,6 @@ Không sử dụng 10 ảnh eval để train vì cần giữ dữ liệu đánh 
 - **Google Colab:** Sử dụng để chạy notebook và thực hiện các bước huấn luyện, đánh giá YOLO.
 - **GitHub:** Sử dụng để quản lý mã nguồn, lưu trữ bài làm và commit kết quả.
 
-**Phần tự kiểm tra:** Các quyết định gán nhãn, phân loại phương tiện, rà soát hình ảnh và kết quả thực nghiệm được đối chiếu với dữ liệu thực tế của bài làm. Nội dung do AI hỗ trợ được người học kiểm tra lại trước khi sử dụng.
 
 ### Tài liệu tham khảo
 

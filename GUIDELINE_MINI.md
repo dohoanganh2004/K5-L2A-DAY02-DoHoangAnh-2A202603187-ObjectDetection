@@ -21,13 +21,12 @@
 
 | Ảnh | Tình huống | Quyết định cuối | Lý do theo schema |
 |---|---|---|---|
-| Image 1 | Một phương tiện bị che khuất bởi vật thể khác. | Chỉ gán nhãn nếu phần phương tiện còn nhìn thấy đủ để xác định class. | Việc bị che khuất không làm thay đổi class, nhưng không được tự suy đoán phần bị che. |
-| Image 3 | Hình ảnh phương tiện bị mờ do chuyển động hoặc được chụp quá nhanh, không thể nhận diện rõ. | Không gán nhãn nếu không xác định được class. | Không đủ thông tin hình ảnh để phân biệt chính xác giữa `car`, `truck`, `bus` và `van`. |
-| Image 6 | Phương tiện bị lẫn vào khu vực công trình xây dựng, khó phân biệt với các vật thể xung quanh. | Không gán nhãn nếu không xác định được ranh giới và class của phương tiện. | Không thể tạo Bounding Box đáng tin cậy khi đối tượng không được phân biệt rõ với nền. |
-| Image 7 | Phương tiện xuất hiện không rõ ràng, khó xác định là `van` hay `truck`. | Không gán nhãn khi không đủ đặc điểm để phân biệt hai class. | Theo schema, `van` và `truck` có định nghĩa khác nhau. Không được lựa chọn class chỉ dựa trên phỏng đoán. |
-| Image 11 | Phương tiện chỉ xuất hiện một phần trong ảnh, hình ảnh không đủ rõ để nhận diện loại xe. | Không gán nhãn nếu phần nhìn thấy không đủ thông tin để xác định class. | Vật thể bị cắt bởi rìa ảnh vẫn có thể được gán nhãn, nhưng phải có đủ đặc điểm nhận diện. |
+| drive-01 | Một phương tiện bị che khuất bởi vật thể khác. | Chỉ gán nhãn nếu phần phương tiện còn nhìn thấy đủ để xác định class. | Việc bị che khuất không làm thay đổi class, nhưng không được tự suy đoán phần bị che. |
+| drive-03 | Hình ảnh phương tiện bị mờ do chuyển động hoặc được chụp quá nhanh, không thể nhận diện rõ. | Không gán nhãn nếu không xác định được class. | Không đủ thông tin hình ảnh để phân biệt chính xác giữa `car`, `truck`, `bus` và `van`. |
+| driver-06 | Phương tiện bị lẫn vào khu vực công trình xây dựng, khó phân biệt với các vật thể xung quanh. | Không gán nhãn nếu không xác định được ranh giới và class của phương tiện. | Không thể tạo Bounding Box đáng tin cậy khi đối tượng không được phân biệt rõ với nền. |
+| driver-07 | Phương tiện xuất hiện không rõ ràng, khó xác định là `van` hay `truck`. | Không gán nhãn khi không đủ đặc điểm để phân biệt hai class. | Theo schema, `van` và `truck` có định nghĩa khác nhau. Không được lựa chọn class chỉ dựa trên phỏng đoán. |
+| drive-08 | Phương tiện chỉ xuất hiện một phần trong ảnh, hình ảnh không đủ rõ để nhận diện loại xe. | Không gán nhãn nếu phần nhìn thấy không đủ thông tin để xác định class. | Vật thể bị cắt bởi rìa ảnh vẫn có thể được gán nhãn, nhưng phải có đủ đặc điểm nhận diện. |
 
-**Lưu ý:** Các quyết định không gán nhãn ở trên chỉ áp dụng khi thực sự không đủ thông tin để xác định đối tượng hoặc class. Nếu sau khi kiểm tra lại có thể nhận diện được phương tiện thì vẫn cần annotation theo quy tắc chung.
 
 ## 4. Nguyên tắc thực hiện
 
